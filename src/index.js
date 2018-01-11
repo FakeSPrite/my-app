@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 function Square(props){
+
         return (
             <button className="square" onClick={props.onClick} style={props.style}>
                 {props.value}
@@ -12,9 +13,19 @@ function Square(props){
 class Board extends React.Component {
 
     renderSquare(i) {
-
+        var style ;
+            if(this.props.change_style ==i)
+            {
+                style = {
+                fontWeight:'900',
+                    color:'red'}
+            }
+            else
+            {
+                style = this.props.style
+            }
         return <Square value={this.props.squares[i]}
-                       onClick={() => this.props.onClick(i)} style={this.props.style} />;
+                       onClick={() => this.props.onClick(i)} style={style} />;
     }
 
     render() {
@@ -51,9 +62,7 @@ class Game extends React.Component {
             xIsNext:true,
             location_store:[],
             stepNumber: 0,
-            boldstyle:{
-                fontWeight:'normal',
-                color:'black'}
+            change_style:null
             // current_location:'',
                 }
     }
@@ -86,9 +95,7 @@ class Game extends React.Component {
             stepNumber: history.length,
             xIsNext:!this.state.xIsNext,
             location_store: location_store.concat(location[i]),
-            boldstyle:{
-                fontWeight:'900',
-                color:'red'}
+            change_style:i
 
             // current_location:location[i],
         });
@@ -131,7 +138,7 @@ class Game extends React.Component {
                     <Board
                     squares={current.squares}
                     onClick={(i)=>this.handleClick(i)}
-                    style={this.state.boldstyle}
+                    change_style={this.state.change_style}
                     />
                 </div>
                 <div className="game-info">
