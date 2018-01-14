@@ -24,6 +24,14 @@ class Board extends React.Component {
             {
                 style = this.props.style
             }
+            if(this.props.winLines.includes(i))
+            {
+                style = {
+                    fontWeight:'900',
+                    color:'blue'
+                }
+            }
+
         return <Square value={this.props.squares[i]}
                        onClick={() => this.props.onClick(i)} style={style} />;
     }
@@ -62,7 +70,9 @@ class Game extends React.Component {
             xIsNext:true,
             location_store:[],
             stepNumber: 0,
-            change_style:null
+            change_style:null,
+            reverseOrder:false,
+            // winnerLine:[]
             // current_location:'',
                 }
     }
@@ -83,10 +93,22 @@ class Game extends React.Component {
         const location_store = this.state.location_store.slice(0,this.state.stepNumber );
         const current =history[history.length-1];
         const squares = current.squares.slice();
-        if(calculateWinner(squares)||squares[i])
+        let res = calculateWinner(squares);
+
+        if(squares[i])
         {
             return
         }
+        if(res)
+        {
+            // console.log(res);
+            // this.setState({
+            //     winnerLine:res[1],
+            // });
+            // console.log(this.state.winnerLine);
+            return
+        }
+
         squares[i] = this.state.xIsNext?'X':'O';
         this.setState({
                history: history.concat([{
@@ -105,14 +127,31 @@ class Game extends React.Component {
         this.setState({
             stepNumber: step,
             xIsNext: (step % 2) ? false : true,
+            // winnerLine:[]
         });
     }
-
+    setReverse(){
+        this.setState({
+            reverseOrder:!this.state.reverseOrder,
+        });
+    }
+    // setWinLines(final_lines){
+    //     this.setState({
+    //         winnerLine:final_lines,
+    //     });
+    // }
     render() {
         const history = this.state.history;
         // const current = history[history.length - 1];
         const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
+        let res = calculateWinner(current.squares);
+            let winner = res?res[0]:null;
+            // let  winnerLine = [];
+        if(winner){
+            let    winnerLine = winner?res[1]:[];
+            }
+
+
         let i=0;
         const moves = history.map((step, move) => {
 
@@ -139,11 +178,13 @@ class Game extends React.Component {
                     squares={current.squares}
                     onClick={(i)=>this.handleClick(i)}
                     change_style={this.state.change_style}
+                    winLines={winnerLine}
                     />
                 </div>
                 <div className="game-info">
                     <div>{status }</div>
-                    <ol>{moves}</ol>
+                    <ol>{!this.state.reverseOrder?moves:moves.reverse()}</ol>
+                    <ol><button onClick={()=>this.setReverse()}>reverse</button></ol>
                 </div>
             </div>
         );
@@ -152,6 +193,7 @@ class Game extends React.Component {
 
 // ========================================
 function calculateWinner(squares) {
+    // let game = Game();
     const lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -165,7 +207,7 @@ function calculateWinner(squares) {
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
         if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
+            return [squares[a],[a,b,c]];
         }
     }
     return null;
