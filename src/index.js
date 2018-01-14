@@ -32,29 +32,34 @@ class Board extends React.Component {
                 }
             }
 
-        return <Square value={this.props.squares[i]}
+        return <Square key={i}
+            value={this.props.squares[i]}
                        onClick={() => this.props.onClick(i)} style={style} />;
     }
 
+    getBoard() {
+
+        var rows =[];
+        var count =0;
+        var i =0;
+        for(let r=0; r< this.props.row; r++)
+        {
+            i++
+            var bord_html =[];
+            for(let c=0; c<this.props.col; c++) {
+                { bord_html.push(this.renderSquare(count))}
+                count++;
+            }
+            {rows.push(<div className="board-row" key={i}>{bord_html}</div>)}
+        }
+return rows;
+    }
+
     render() {
+
         return (
             <div>
-                {/*<div className="status">{status}</div>*/}
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
+                {this.getBoard()}
             </div>
         );
     }
@@ -72,8 +77,6 @@ class Game extends React.Component {
             stepNumber: 0,
             change_style:null,
             reverseOrder:false,
-            // winnerLine:[]
-            // current_location:'',
                 }
     }
     handleClick(i) {
@@ -95,17 +98,8 @@ class Game extends React.Component {
         const squares = current.squares.slice();
         let res = calculateWinner(squares);
 
-        if(squares[i])
+        if(res||squares[i])
         {
-            return
-        }
-        if(res)
-        {
-            // console.log(res);
-            // this.setState({
-            //     winnerLine:res[1],
-            // });
-            // console.log(this.state.winnerLine);
             return
         }
 
@@ -118,8 +112,6 @@ class Game extends React.Component {
             xIsNext:!this.state.xIsNext,
             location_store: location_store.concat(location[i]),
             change_style:i
-
-            // current_location:location[i],
         });
 
     }
@@ -135,21 +127,12 @@ class Game extends React.Component {
             reverseOrder:!this.state.reverseOrder,
         });
     }
-    // setWinLines(final_lines){
-    //     this.setState({
-    //         winnerLine:final_lines,
-    //     });
-    // }
     render() {
         const history = this.state.history;
-        // const current = history[history.length - 1];
         const current = history[this.state.stepNumber];
         let res = calculateWinner(current.squares);
-            let winner = res?res[0]:null;
-            // let  winnerLine = [];
-        if(winner){
-            let    winnerLine = winner?res[1]:[];
-            }
+        let winner = res?res[0]:null;
+        let    winnerLine = res?res[1]:[];
 
 
         let i=0;
@@ -179,6 +162,8 @@ class Game extends React.Component {
                     onClick={(i)=>this.handleClick(i)}
                     change_style={this.state.change_style}
                     winLines={winnerLine}
+                    col={3}
+                    row={3}
                     />
                 </div>
                 <div className="game-info">
